@@ -1,3 +1,4 @@
+#if canImport(SwiftUI)
 import OrderedCollections
 import SwiftUI
 
@@ -153,3 +154,5 @@ public struct _StoreCollection<ID: Hashable & Sendable, State, Action>: RandomAc
     }
   }
 }
+
+#endif

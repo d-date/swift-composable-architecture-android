@@ -1,3 +1,4 @@
+#if canImport(SwiftUI)
 import CustomDump
 import SwiftUI
 
@@ -106,3 +107,5 @@ extension BindableAction {
     AnyCasePath(unsafe: { .binding($0) }).extract(from: self)
   }
 }
+
+#endif

@@ -1,3 +1,4 @@
+#if canImport(SwiftUI)
 import SwiftUI
 
 #if canImport(Observation)
@@ -723,3 +724,5 @@ extension Optional: _ScopableState {
     flatMap(_identifiableID)
   }
 }
+
+#endif

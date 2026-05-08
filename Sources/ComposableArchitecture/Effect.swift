@@ -1,6 +1,9 @@
-@preconcurrency import _TCACombineShim
 import Foundation
-import SwiftUI
+@preconcurrency import _TCACombineShim
+
+#if canImport(SwiftUI)
+  import SwiftUI
+#endif
 
 public struct Effect<Action>: Sendable {
   @usableFromInline
@@ -193,26 +196,28 @@ public struct Send<Action>: Sendable {
     self.send(action)
   }
 
-  /// Sends an action back into the system from an effect with animation.
-  ///
-  /// - Parameters:
-  ///   - action: An action.
-  ///   - animation: An animation.
-  public func callAsFunction(_ action: Action, animation: Animation?) {
-    callAsFunction(action, transaction: Transaction(animation: animation))
-  }
-
-  /// Sends an action back into the system from an effect with transaction.
-  ///
-  /// - Parameters:
-  ///   - action: An action.
-  ///   - transaction: A transaction.
-  public func callAsFunction(_ action: Action, transaction: Transaction) {
-    guard !Task.isCancelled else { return }
-    withTransaction(transaction) {
-      self(action)
+  #if canImport(SwiftUI)
+    /// Sends an action back into the system from an effect with animation.
+    ///
+    /// - Parameters:
+    ///   - action: An action.
+    ///   - animation: An animation.
+    public func callAsFunction(_ action: Action, animation: Animation?) {
+      callAsFunction(action, transaction: Transaction(animation: animation))
     }
-  }
+
+    /// Sends an action back into the system from an effect with transaction.
+    ///
+    /// - Parameters:
+    ///   - action: An action.
+    ///   - transaction: A transaction.
+    public func callAsFunction(_ action: Action, transaction: Transaction) {
+      guard !Task.isCancelled else { return }
+      withTransaction(transaction) {
+        self(action)
+      }
+    }
+  #endif
 }
 
 public typealias SendOf<R: Reducer> = Send<R.Action>

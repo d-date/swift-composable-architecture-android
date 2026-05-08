@@ -7,7 +7,14 @@
 @_exported import DependenciesMacros
 @_exported import IdentifiedCollections
 @_exported import Observation
-@_exported import Perception
 @_exported import Sharing
-@_exported import SwiftUINavigation
-@_exported import UIKitNavigation
+
+#if canImport(Perception)
+  @_exported import Perception
+#endif
+#if canImport(SwiftUINavigation)
+  @_exported import SwiftUINavigation
+#endif
+#if canImport(UIKitNavigation)
+  @_exported import UIKitNavigation
+#endif

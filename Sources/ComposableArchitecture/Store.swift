@@ -1,7 +1,10 @@
-import _TCACombineShim
 import CombineSchedulers
 import Foundation
-import SwiftUI
+import _TCACombineShim
+
+#if canImport(SwiftUI)
+  import SwiftUI
+#endif
 
 /// A store represents the runtime that powers the application. It is the object that you will pass
 /// around to views that need to interact with the application.

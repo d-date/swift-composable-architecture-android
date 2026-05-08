@@ -1,3 +1,4 @@
+#if canImport(SwiftUI)
 import SwiftUI
 
 extension DependencyValues {
@@ -154,3 +155,5 @@ private enum DismissKey: DependencyKey {
   static let liveValue = DismissEffect()
   static let testValue = DismissEffect()
 }
+
+#endif
