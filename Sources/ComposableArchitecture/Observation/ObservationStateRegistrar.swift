@@ -54,23 +54,13 @@ extension ObservationStateRegistrar: Equatable, Hashable, Codable {
       _ isIdentityEqual: (Value, Value) -> Bool,
       _ shouldNotifyObservers: (Value, Value) -> Bool = { _, _ in true }
     ) {
-      // On Android (Swift 6.3.1) the standard
-      // `Observation.ObservationRegistrar.withMutation` does not appear
-      // to run its closure synchronously when the subject is a value type
-      // captured by copy, which causes the macro-generated `_modify`
-      // → `didModify` flow to lose the new value. Always assign directly;
-      // we have no observers across the JNI boundary anyway.
-      #if os(Android)
+      if isIdentityEqual(value, newValue) || !shouldNotifyObservers(value, newValue) {
         value = newValue
-      #else
-        if isIdentityEqual(value, newValue) || !shouldNotifyObservers(value, newValue) {
+      } else {
+        self.registrar.withMutation(of: subject, keyPath: keyPath) {
           value = newValue
-        } else {
-          self.registrar.withMutation(of: subject, keyPath: keyPath) {
-            value = newValue
-          }
         }
-      #endif
+      }
     }
 
     /// A no-op for non-observable values.
