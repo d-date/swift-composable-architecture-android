@@ -26,6 +26,34 @@ public struct Effect<Action>: Sendable {
   }
 }
 
+/// Public mirror of the internal `Effect.Operation` enum, exposed as
+/// `@_spi(Android)` so the Android JNI bridge in
+/// `d-date/swift-composable-android` can consume `.run` and `.publisher`
+/// effects without going through `Store`.
+@_spi(Android)
+public enum _AndroidEffectOperation<Action: Sendable>: Sendable {
+  case none
+  case publisher(AnyPublisher<Action, Never>)
+  case run(@Sendable (_ send: Send<Action>) async -> Void)
+}
+
+@_spi(Android)
+extension Effect {
+  /// Inspectable form of this effect's underlying operation. Use only
+  /// from non-Apple-platform runtimes that need to dispatch effects
+  /// without `Store`'s `@MainActor` constraints.
+  public var _androidOperation: _AndroidEffectOperation<Action> {
+    switch operation {
+    case .none:
+      return .none
+    case .publisher(let publisher):
+      return .publisher(publisher)
+    case .run(_, _, let body):
+      return .run(body)
+    }
+  }
+}
+
 /// A convenience type alias for referring to an effect of a given reducer's domain.
 ///
 /// Instead of specifying the action:
