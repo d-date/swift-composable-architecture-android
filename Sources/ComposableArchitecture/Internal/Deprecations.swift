@@ -8,6 +8,12 @@
   import UIKit
 #endif
 
+// Deprecations rely heavily on SwiftUI/UIKit/ViewStore types that are not
+// available on Android. They're scoped to Apple platforms here for the
+// android fork — Android consumers should target current (non-deprecated)
+// API.
+#if canImport(SwiftUI)
+
 // NB: Deprecated with 1.25.0:
 
 @available(
@@ -3933,3 +3939,5 @@ public typealias ReducerProtocol = Reducer
 
 @available(*, unavailable, renamed: "ReducerOf")
 public typealias ReducerProtocolOf<R: Reducer> = Reducer<R.State, R.Action>
+
+#endif
