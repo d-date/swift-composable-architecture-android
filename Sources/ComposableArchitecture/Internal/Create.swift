@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-@preconcurrency import Combine
+@preconcurrency import _TCACombineShim
 import Foundation
 
 final class DemandBuffer<S: Subscriber>: @unchecked Sendable {

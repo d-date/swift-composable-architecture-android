@@ -1,5 +1,5 @@
 @_spi(Reflection) import CasePaths
-import Combine
+import _TCACombineShim
 import Foundation
 import OrderedCollections
 

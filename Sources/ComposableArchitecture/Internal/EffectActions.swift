@@ -1,4 +1,4 @@
-@preconcurrency import Combine
+@preconcurrency import _TCACombineShim
 
 extension Effect where Action: Sendable {
   @_spi(Internals) public var actions: AsyncStream<Action> {

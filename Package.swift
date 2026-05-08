@@ -15,7 +15,11 @@ let package = Package(
     .library(
       name: "ComposableArchitecture",
       targets: ["ComposableArchitecture"]
-    )
+    ),
+    .library(
+      name: "_TCACombineShim",
+      targets: ["_TCACombineShim"]
+    ),
   ],
   traits: [
     .trait(
@@ -50,11 +54,34 @@ let package = Package(
     .package(url: "https://github.com/pointfreeco/xctest-dynamic-overlay", from: "1.3.0"),
     .package(url: "https://github.com/swiftlang/swift-docc-plugin", from: "1.0.0"),
     .package(url: "https://github.com/swiftlang/swift-syntax", "509.0.0"..<"605.0.0"),
+    // Android-android-fork additions:
+    .package(url: "https://github.com/OpenCombine/OpenCombine.git", from: "0.14.0"),
   ],
   targets: [
     .target(
+      name: "_TCACombineShim",
+      dependencies: [
+        .product(
+          name: "OpenCombine",
+          package: "OpenCombine",
+          condition: .when(platforms: [.android, .linux])
+        ),
+        .product(
+          name: "OpenCombineDispatch",
+          package: "OpenCombine",
+          condition: .when(platforms: [.android, .linux])
+        ),
+        .product(
+          name: "OpenCombineFoundation",
+          package: "OpenCombine",
+          condition: .when(platforms: [.android, .linux])
+        ),
+      ]
+    ),
+    .target(
       name: "ComposableArchitecture",
       dependencies: [
+        "_TCACombineShim",
         "ComposableArchitectureMacros",
         .product(name: "CasePaths", package: "swift-case-paths"),
         .product(name: "Clocks", package: "swift-clocks"),
@@ -66,10 +93,22 @@ let package = Package(
         .product(name: "IdentifiedCollections", package: "swift-identified-collections"),
         .product(name: "IssueReporting", package: "xctest-dynamic-overlay"),
         .product(name: "OrderedCollections", package: "swift-collections"),
-        .product(name: "Perception", package: "swift-perception"),
+        .product(
+          name: "Perception",
+          package: "swift-perception",
+          condition: .when(platforms: [.iOS, .macOS, .tvOS, .watchOS, .visionOS, .macCatalyst])
+        ),
         .product(name: "Sharing", package: "swift-sharing"),
-        .product(name: "SwiftUINavigation", package: "swift-navigation"),
-        .product(name: "UIKitNavigation", package: "swift-navigation"),
+        .product(
+          name: "SwiftUINavigation",
+          package: "swift-navigation",
+          condition: .when(platforms: [.iOS, .macOS, .tvOS, .watchOS, .visionOS, .macCatalyst])
+        ),
+        .product(
+          name: "UIKitNavigation",
+          package: "swift-navigation",
+          condition: .when(platforms: [.iOS, .macOS, .tvOS, .watchOS, .visionOS, .macCatalyst])
+        ),
       ],
       resources: [
         .process("Resources/PrivacyInfo.xcprivacy")

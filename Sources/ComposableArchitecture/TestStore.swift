@@ -1,5 +1,5 @@
 @_spi(Internals) import CasePaths
-import Combine
+import _TCACombineShim
 import ConcurrencyExtras
 import CustomDump
 @_spi(Beta) import Dependencies

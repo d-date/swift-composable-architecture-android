@@ -1,4 +1,4 @@
-@preconcurrency import Combine
+@preconcurrency import _TCACombineShim
 import Foundation
 
 extension Effect {

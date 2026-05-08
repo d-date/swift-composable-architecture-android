@@ -1,4 +1,4 @@
-import Combine
+import _TCACombineShim
 
 extension Effect {
   /// Creates an effect from a Combine publisher.

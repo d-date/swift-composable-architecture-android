@@ -1,8 +1,6 @@
 @_spi(Reflection) import CasePaths
+@preconcurrency import _TCACombineShim
 
-#if canImport(Combine)
-  @preconcurrency import Combine
-#endif
 #if canImport(SwiftUI)
   import SwiftUI
 #endif
