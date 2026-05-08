@@ -194,8 +194,14 @@ public macro Presents() =
 ///   //╰─ ⚠️ Do not use 'store.send' directly when using '@ViewAction'
 ///   }
 ///   ```
-@attached(extension, conformances: ViewActionSending)
-public macro ViewAction<R: Reducer>(for: R.Type) =
-  #externalMacro(
-    module: "ComposableArchitectureMacros", type: "ViewActionMacro"
-  ) where R.Action: ViewAction
+// `ViewAction` and `ViewActionSending` are SwiftUI-bound symbols that live
+// in `Observation/ViewAction.swift`, which is `#if canImport(SwiftUI)`.
+// Mirror the same gate here so the macro declaration only exists where the
+// referenced types do.
+#if canImport(SwiftUI)
+  @attached(extension, conformances: ViewActionSending)
+  public macro ViewAction<R: Reducer>(for: R.Type) =
+    #externalMacro(
+      module: "ComposableArchitectureMacros", type: "ViewActionMacro"
+    ) where R.Action: ViewAction
+#endif
