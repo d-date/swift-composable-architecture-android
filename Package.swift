@@ -41,7 +41,6 @@ let package = Package(
   dependencies: [
     .package(url: "https://github.com/apple/swift-collections", from: "1.1.0"),
     .package(
-      name: "combine-schedulers",
       url: "git@github.com:d-date/combine-schedulers-android.git",
       branch: "main-android"
     ),
