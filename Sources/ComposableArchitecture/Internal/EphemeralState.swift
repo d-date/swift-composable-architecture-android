@@ -14,11 +14,17 @@ extension _EphemeralState {
   public static var actionType: Any.Type { Action.self }
 }
 
-@_documentation(visibility: private)
-extension AlertState: _EphemeralState {}
+// `AlertState` and `ConfirmationDialogState` come from
+// SwiftUINavigation/swift-navigation, which is excluded on non-Apple
+// builds (see Package.swift). Conformances are only available where the
+// host types are.
+#if canImport(SwiftUINavigation)
+  @_documentation(visibility: private)
+  extension AlertState: _EphemeralState {}
 
-@_documentation(visibility: private)
-extension ConfirmationDialogState: _EphemeralState {}
+  @_documentation(visibility: private)
+  extension ConfirmationDialogState: _EphemeralState {}
+#endif
 
 @usableFromInline
 func ephemeralType<State>(of state: State) -> (any _EphemeralState.Type)? {

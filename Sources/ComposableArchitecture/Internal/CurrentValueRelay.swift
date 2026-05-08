@@ -1,11 +1,11 @@
-import _TCACombineShim
 import Foundation
+import _TCACombineShim
 
 final class CurrentValueRelay<Output>: Publisher, @unchecked Sendable {
   typealias Failure = Never
 
   private var currentValue: Output
-  private let lock: os_unfair_lock_t
+  private let lock: _TCAInternalLockHandle
   private var subscriptions = ContiguousArray<Subscription>()
 
   var value: Output {
@@ -15,13 +15,11 @@ final class CurrentValueRelay<Output>: Publisher, @unchecked Sendable {
 
   init(_ value: Output) {
     self.currentValue = value
-    self.lock = os_unfair_lock_t.allocate(capacity: 1)
-    self.lock.initialize(to: os_unfair_lock())
+    self.lock = _TCAInternalLockMake()
   }
 
   deinit {
-    self.lock.deinitialize(count: 1)
-    self.lock.deallocate()
+    _TCAInternalLockDispose(self.lock)
   }
 
   func receive(subscriber: some Subscriber<Output, Never>) {
@@ -55,20 +53,18 @@ extension CurrentValueRelay {
   fileprivate final class Subscription: Combine.Subscription, Equatable {
     private var demand = Subscribers.Demand.none
     private var downstream: (any Subscriber<Output, Never>)?
-    private let lock: os_unfair_lock_t
+    private let lock: _TCAInternalLockHandle
     private var receivedLastValue = false
     private var upstream: CurrentValueRelay?
 
     init(upstream: CurrentValueRelay, downstream: any Subscriber<Output, Never>) {
       self.upstream = upstream
       self.downstream = downstream
-      self.lock = os_unfair_lock_t.allocate(capacity: 1)
-      self.lock.initialize(to: os_unfair_lock())
+      self.lock = _TCAInternalLockMake()
     }
 
     deinit {
-      self.lock.deinitialize(count: 1)
-      self.lock.deallocate()
+      _TCAInternalLockDispose(self.lock)
     }
 
     func cancel() {
