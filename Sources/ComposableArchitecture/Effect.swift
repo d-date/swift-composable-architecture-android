@@ -216,6 +216,20 @@ public struct Send<Action>: Sendable {
     self.send = send
   }
 
+  /// Non-isolated initialiser used by the Android runtime. On Android the
+  /// real `MainActor` executor is not bound to a thread (libdispatch's
+  /// main queue isn't the Android Looper), so the JNI bridge constructs
+  /// `Send` from arbitrary threads. The provided closure must be safe to
+  /// call without `MainActor` isolation; the bridge serialises action
+  /// dispatch with its own lock.
+  @_spi(Android)
+  public nonisolated init(_androidUnsafeSend: @escaping @Sendable (Action) -> Void) {
+    self.send = unsafeBitCast(
+      _androidUnsafeSend as (@Sendable (Action) -> Void),
+      to: (@MainActor @Sendable (Action) -> Void).self
+    )
+  }
+
   /// Sends an action back into the system from an effect.
   ///
   /// - Parameter action: An action.
