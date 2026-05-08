@@ -40,7 +40,10 @@ let package = Package(
   ],
   dependencies: [
     .package(url: "https://github.com/apple/swift-collections", from: "1.1.0"),
-    .package(url: "https://github.com/pointfreeco/combine-schedulers", from: "1.0.2"),
+    .package(
+      url: "git@github.com:d-date/combine-schedulers-android.git",
+      branch: "main-android"
+    ),
     .package(url: "https://github.com/pointfreeco/swift-case-paths", from: "1.5.4"),
     .package(url: "https://github.com/pointfreeco/swift-clocks", from: "1.0.4"),
     .package(url: "https://github.com/pointfreeco/swift-concurrency-extras", from: "1.2.0"),
