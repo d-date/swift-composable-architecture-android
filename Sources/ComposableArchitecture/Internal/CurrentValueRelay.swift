@@ -6,7 +6,7 @@ final class CurrentValueRelay<Output>: Publisher, @unchecked Sendable {
 
   private var currentValue: Output
   private let lock: _TCAInternalLockHandle
-  private var subscriptions = ContiguousArray<Subscription>()
+  private var subscriptions = ContiguousArray<_Sub>()
 
   var value: Output {
     get { self.lock.sync { self.currentValue } }
@@ -23,7 +23,7 @@ final class CurrentValueRelay<Output>: Publisher, @unchecked Sendable {
   }
 
   func receive(subscriber: some Subscriber<Output, Never>) {
-    let subscription = Subscription(upstream: self, downstream: subscriber)
+    let subscription = _Sub(upstream: self, downstream: subscriber)
     self.lock.sync {
       self.subscriptions.append(subscription)
     }
@@ -40,7 +40,7 @@ final class CurrentValueRelay<Output>: Publisher, @unchecked Sendable {
     }
   }
 
-  private func remove(_ subscription: Subscription) {
+  private func remove(_ subscription: _Sub) {
     self.lock.sync {
       guard let index = self.subscriptions.firstIndex(of: subscription)
       else { return }
@@ -50,7 +50,10 @@ final class CurrentValueRelay<Output>: Publisher, @unchecked Sendable {
 }
 
 extension CurrentValueRelay {
-  fileprivate final class Subscription: Combine.Subscription, Equatable {
+  // Renamed from `Subscription` so the conformance to the Combine /
+  // OpenCombine `Subscription` protocol is unambiguous regardless of which
+  // backend `_TCACombineShim` selects on this platform.
+  fileprivate final class _Sub: Subscription, Equatable {
     private var demand = Subscribers.Demand.none
     private var downstream: (any Subscriber<Output, Never>)?
     private let lock: _TCAInternalLockHandle
@@ -142,7 +145,7 @@ extension CurrentValueRelay {
       }
     }
 
-    static func == (lhs: Subscription, rhs: Subscription) -> Bool {
+    static func == (lhs: _Sub, rhs: _Sub) -> Bool {
       lhs === rhs
     }
   }

@@ -44,8 +44,11 @@ import Foundation
   /// Wrapped in a class so that struct-style allocate/deallocate semantics
   /// emulate the Apple side; the lock survives across `lock()`/`unlock()`
   /// calls because all references share the underlying NSLock.
+  @usableFromInline
   final class _TCAInternalLock: @unchecked Sendable {
     @usableFromInline let nsLock = NSLock()
+
+    @usableFromInline init() {}
 
     @inlinable @discardableResult
     func sync<R>(_ work: () -> R) -> R {
