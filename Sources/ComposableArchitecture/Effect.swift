@@ -257,15 +257,32 @@ extension Effect {
     case (.none, _):
       return other
     case (.publisher, .publisher), (.run, .publisher), (.publisher, .run):
-      return Self(
-        operation: .publisher(
-          Publishers.Merge(
-            _EffectPublisher(self),
-            _EffectPublisher(other)
+      // OpenCombine (used on non-Apple targets) lacks `Publishers.Merge`,
+      // so implement an equivalent by emitting the two upstream publishers
+      // through a sequence and flattening.
+      #if canImport(Combine)
+        return Self(
+          operation: .publisher(
+            Publishers.Merge(
+              _EffectPublisher(self),
+              _EffectPublisher(other)
+            )
+            .eraseToAnyPublisher()
           )
-          .eraseToAnyPublisher()
         )
-      )
+      #else
+        let upstreams: [AnyPublisher<Action, Never>] = [
+          _EffectPublisher(self).eraseToAnyPublisher(),
+          _EffectPublisher(other).eraseToAnyPublisher(),
+        ]
+        return Self(
+          operation: .publisher(
+            upstreams.publisher
+              .flatMap { $0 }
+              .eraseToAnyPublisher()
+          )
+        )
+      #endif
     case (
       .run(let lhsName, let lhsPriority, let lhsOperation),
       .run(let rhsName, let rhsPriority, let rhsOperation)

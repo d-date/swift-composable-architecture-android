@@ -127,13 +127,13 @@ extension Publishers {
     }
 
     func receive<S: Subscriber>(subscriber: S) where S.Input == Output, S.Failure == Failure {
-      subscriber.receive(subscription: Subscription(callback: callback, downstream: subscriber))
+      subscriber.receive(subscription: _Sub(callback: callback, downstream: subscriber))
     }
   }
 }
 
 extension Publishers.Create {
-  fileprivate final class Subscription<Downstream: Subscriber>: Subscription, Sendable
+  fileprivate final class _Sub<Downstream: Subscriber>: Subscription, Sendable
   where Downstream.Input == Output, Downstream.Failure == Never {
     private let buffer: DemandBuffer<Downstream>
     private let cancellable = LockIsolated<(any Cancellable)?>(nil)
@@ -164,9 +164,9 @@ extension Publishers.Create {
   }
 }
 
-extension Publishers.Create.Subscription: CustomStringConvertible {
+extension Publishers.Create._Sub: CustomStringConvertible {
   var description: String {
-    return "Create.Subscription<\(Output.self)>"
+    return "Create._Sub<\(Output.self)>"
   }
 }
 

@@ -1,5 +1,5 @@
-import _TCACombineShim
 import Foundation
+import _TCACombineShim
 
 enum Origin {
   case effect
@@ -66,7 +66,7 @@ final class RootCore<Root: Reducer>: Core {
     self.reducer = reducer
   }
   func send(_ action: Root.Action, origin: Origin) -> Task<Void, Never>? {
-    #if DEBUG
+    #if DEBUG && canImport(Perception)
       _PerceptionLocals.$skipPerceptionChecking.withValue(true) {
         _send(action, origin: origin)
       }
@@ -221,7 +221,7 @@ final class ScopedCore<Base: Core, State, Action>: Core {
   let base: Base
   let stateKeyPath: KeyPath<Base.State, State>
   let actionKeyPath: CaseKeyPath<Base.Action, Action>
-  #if DEBUG
+  #if DEBUG && canImport(Perception)
     let initializedInPerceptionTracking = _isInPerceptionTracking
   #endif
   init(
@@ -236,7 +236,7 @@ final class ScopedCore<Base: Core, State, Action>: Core {
   @inlinable
   @inline(__always)
   var state: State {
-    #if DEBUG
+    #if DEBUG && canImport(Perception)
       return _PerceptionLocals.$skipPerceptionChecking.withValue(
         initializedInPerceptionTracking || _isInPerceptionTracking
       ) {
@@ -279,7 +279,7 @@ final class IfLetCore<Base: Core, State, Action>: Core {
   let stateKeyPath: KeyPath<Base.State, State?>
   let actionKeyPath: CaseKeyPath<Base.Action, Action>
   var parentCancellable: AnyCancellable?
-  #if DEBUG
+  #if DEBUG && canImport(Perception)
     let initializedInPerceptionTracking = _isInPerceptionTracking
   #endif
   init(
@@ -296,7 +296,7 @@ final class IfLetCore<Base: Core, State, Action>: Core {
   @inlinable
   @inline(__always)
   var state: State {
-    #if DEBUG
+    #if DEBUG && canImport(Perception)
       return _PerceptionLocals.$skipPerceptionChecking.withValue(
         initializedInPerceptionTracking || _isInPerceptionTracking
       ) {
@@ -331,7 +331,7 @@ final class IfLetCore<Base: Core, State, Action>: Core {
   @inlinable
   @inline(__always)
   var isInvalid: Bool {
-    #if DEBUG
+    #if DEBUG && canImport(Perception)
       return _PerceptionLocals.$skipPerceptionChecking.withValue(
         initializedInPerceptionTracking || _isInPerceptionTracking
       ) {
