@@ -506,9 +506,13 @@ public struct StorePublisher<State>: Publisher {
       AnySubscriber(
         receiveSubscription: subscriber.receive(subscription:),
         receiveValue: { value in
-          _PerceptionLocals.$skipPerceptionChecking.withValue(true) {
-            subscriber.receive(value)
-          }
+          #if canImport(Perception)
+            _PerceptionLocals.$skipPerceptionChecking.withValue(true) {
+              subscriber.receive(value)
+            }
+          #else
+            _ = subscriber.receive(value)
+          #endif
         },
         receiveCompletion: { [store = self.store] in
           subscriber.receive(completion: $0)
