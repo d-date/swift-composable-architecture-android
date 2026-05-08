@@ -31,7 +31,7 @@ public struct Effect<Action>: Sendable {
 /// `d-date/swift-composable-android` can consume `.run` and `.publisher`
 /// effects without going through `Store`.
 @_spi(Android)
-public enum _AndroidEffectOperation<Action: Sendable>: Sendable {
+public enum _AndroidEffectOperation<Action> {
   case none
   case publisher(AnyPublisher<Action, Never>)
   case run(@Sendable (_ send: Send<Action>) async -> Void)
