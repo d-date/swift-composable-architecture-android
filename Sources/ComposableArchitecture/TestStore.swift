@@ -1,11 +1,11 @@
 @_spi(Internals) import CasePaths
-import _TCACombineShim
 import ConcurrencyExtras
 import CustomDump
 @_spi(Beta) import Dependencies
 import Foundation
 import IssueReporting
 @_spi(SharedChangeTracking) import Sharing
+import _TCACombineShim
 
 /// A testable runtime for a reducer.
 ///
@@ -470,11 +470,23 @@ public final class TestStore<State: Equatable, Action> {
   public var exhaustivity: Exhaustivity = .on
 
   /// Serializes all async work to the main thread for the lifetime of the test store.
-  public var useMainSerialExecutor: Bool {
-    get { uncheckedUseMainSerialExecutor }
-    set { uncheckedUseMainSerialExecutor = newValue }
-  }
-  private let originalUseMainSerialExecutor = uncheckedUseMainSerialExecutor
+  ///
+  /// `uncheckedUseMainSerialExecutor` is only available on Apple/Linux in
+  /// ConcurrencyExtras (gated `#if !os(WASI) && !os(Windows) && !os(Android)`).
+  /// Provide a no-op surface on Android so call sites still compile.
+  #if !os(WASI) && !os(Windows) && !os(Android)
+    public var useMainSerialExecutor: Bool {
+      get { uncheckedUseMainSerialExecutor }
+      set { uncheckedUseMainSerialExecutor = newValue }
+    }
+    private let originalUseMainSerialExecutor = uncheckedUseMainSerialExecutor
+  #else
+    public var useMainSerialExecutor: Bool {
+      get { false }
+      set { _ = newValue }
+    }
+    private let originalUseMainSerialExecutor = false
+  #endif
 
   /// The current state of the test store.
   ///
@@ -613,7 +625,9 @@ public final class TestStore<State: Equatable, Action> {
   }
 
   deinit {
-    uncheckedUseMainSerialExecutor = self.originalUseMainSerialExecutor
+    #if !os(WASI) && !os(Windows) && !os(Android)
+      uncheckedUseMainSerialExecutor = self.originalUseMainSerialExecutor
+    #endif
     mainActorNow { self.completed() }
   }
 
@@ -939,7 +953,12 @@ extension TestStore {
           column: column
         )
       )
-      if uncheckedUseMainSerialExecutor {
+      #if !os(WASI) && !os(Windows) && !os(Android)
+        let useMainSerial = uncheckedUseMainSerialExecutor
+      #else
+        let useMainSerial = false
+      #endif
+      if useMainSerial {
         await Task.yield()
       } else {
         for await _ in self.reducer.effectDidSubscribe.stream {

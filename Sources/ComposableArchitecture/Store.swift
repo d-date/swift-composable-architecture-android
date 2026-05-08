@@ -110,7 +110,7 @@ public final class Store<State, Action>: _Store {
   let core: any Core<State, Action>
   @_spi(Internals) public var effectCancellables: [UUID: AnyCancellable] { core.effectCancellables }
 
-  #if !os(visionOS)
+  #if canImport(Perception) && !os(visionOS)
     let _$observationRegistrar = PerceptionRegistrar(
       isPerceptionCheckingEnabled: _isStorePerceptionCheckingEnabled
     )
@@ -173,85 +173,87 @@ public final class Store<State, Action>: _Store {
     .init(rawValue: self.send(action))
   }
 
-  /// Sends an action to the store with a given animation.
-  ///
-  /// See ``Store/send(_:)`` for more info.
-  ///
-  /// - Parameters:
-  ///   - action: An action.
-  ///   - animation: An animation.
-  #if ComposableArchitecture2Deprecations
-    @available(*, deprecated, message: "Use 'withAnimation { _ = store.send(action) }' instead")
-  #else
-    @available(
-      iOS,
-      deprecated: 9999,
-      message: "Use 'withAnimation { _ = store.send(action) }' instead"
-    )
-    @available(
-      macOS,
-      deprecated: 9999,
-      message: "Use 'withAnimation { _ = store.send(action) }' instead"
-    )
-    @available(
-      tvOS,
-      deprecated: 9999,
-      message: "Use 'withAnimation { _ = store.send(action) }' instead"
-    )
-    @available(
-      watchOS,
-      deprecated: 9999,
-      message: "Use 'withAnimation { _ = store.send(action) }' instead"
-    )
-  #endif
-  @discardableResult
-  public func send(_ action: Action, animation: Animation?) -> StoreTask {
-    send(action, transaction: Transaction(animation: animation))
-  }
-
-  /// Sends an action to the store with a given transaction.
-  ///
-  /// See ``Store/send(_:)`` for more info.
-  ///
-  /// - Parameters:
-  ///   - action: An action.
-  ///   - transaction: A transaction.
-  #if ComposableArchitecture2Deprecations
-    @available(
-      *,
-      deprecated,
-      message: """
-        Use 'withTransaction(transaction) { _ = store.send(action) }' instead
-        """
-    )
-  #else
-    @available(
-      iOS,
-      deprecated: 9999,
-      message: "Use 'withTransaction(transaction) { _ = store.send(action) }' instead"
-    )
-    @available(
-      macOS,
-      deprecated: 9999,
-      message: "Use 'withTransaction(transaction) { _ = store.send(action) }' instead"
-    )
-    @available(
-      tvOS,
-      deprecated: 9999,
-      message: "Use 'withTransaction(transaction) { _ = store.send(action) }' instead"
-    )
-    @available(
-      watchOS,
-      deprecated: 9999,
-      message: "Use 'withTransaction(transaction) { _ = store.send(action) }' instead"
-    )
-  #endif
-  @discardableResult
-  public func send(_ action: Action, transaction: Transaction) -> StoreTask {
-    withTransaction(transaction) {
-      .init(rawValue: self.send(action))
+  #if canImport(SwiftUI)
+    /// Sends an action to the store with a given animation.
+    ///
+    /// See ``Store/send(_:)`` for more info.
+    ///
+    /// - Parameters:
+    ///   - action: An action.
+    ///   - animation: An animation.
+    #if ComposableArchitecture2Deprecations
+      @available(*, deprecated, message: "Use 'withAnimation { _ = store.send(action) }' instead")
+    #else
+      @available(
+        iOS,
+        deprecated: 9999,
+        message: "Use 'withAnimation { _ = store.send(action) }' instead"
+      )
+      @available(
+        macOS,
+        deprecated: 9999,
+        message: "Use 'withAnimation { _ = store.send(action) }' instead"
+      )
+      @available(
+        tvOS,
+        deprecated: 9999,
+        message: "Use 'withAnimation { _ = store.send(action) }' instead"
+      )
+      @available(
+        watchOS,
+        deprecated: 9999,
+        message: "Use 'withAnimation { _ = store.send(action) }' instead"
+      )
+    #endif
+    @discardableResult
+    public func send(_ action: Action, animation: Animation?) -> StoreTask {
+      send(action, transaction: Transaction(animation: animation))
     }
-  }
+
+    /// Sends an action to the store with a given transaction.
+    ///
+    /// See ``Store/send(_:)`` for more info.
+    ///
+    /// - Parameters:
+    ///   - action: An action.
+    ///   - transaction: A transaction.
+    #if ComposableArchitecture2Deprecations
+      @available(
+        *,
+        deprecated,
+        message: """
+          Use 'withTransaction(transaction) { _ = store.send(action) }' instead
+          """
+      )
+    #else
+      @available(
+        iOS,
+        deprecated: 9999,
+        message: "Use 'withTransaction(transaction) { _ = store.send(action) }' instead"
+      )
+      @available(
+        macOS,
+        deprecated: 9999,
+        message: "Use 'withTransaction(transaction) { _ = store.send(action) }' instead"
+      )
+      @available(
+        tvOS,
+        deprecated: 9999,
+        message: "Use 'withTransaction(transaction) { _ = store.send(action) }' instead"
+      )
+      @available(
+        watchOS,
+        deprecated: 9999,
+        message: "Use 'withTransaction(transaction) { _ = store.send(action) }' instead"
+      )
+    #endif
+    @discardableResult
+    public func send(_ action: Action, transaction: Transaction) -> StoreTask {
+      withTransaction(transaction) {
+        .init(rawValue: self.send(action))
+      }
+    }
+  #endif
 
   /// Scopes the store to one that exposes child state and actions.
   ///
