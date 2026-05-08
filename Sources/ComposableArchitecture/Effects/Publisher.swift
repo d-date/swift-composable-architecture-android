@@ -20,7 +20,7 @@ public struct _EffectPublisher<Action>: Publisher {
     self.effect = effect
   }
 
-  public func receive(subscriber: some Combine.Subscriber<Action, Failure>) {
+  public func receive(subscriber: some Subscriber<Action, Failure>) {
     publisher.subscribe(subscriber)
   }
 

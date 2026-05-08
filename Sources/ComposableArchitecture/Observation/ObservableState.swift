@@ -6,7 +6,10 @@ import Foundation
 /// However, applying the ``ObservableState`` protocol by itself to a type doesn’t add observation
 /// functionality to the type. Instead, always use the ``ObservableState()`` macro when adding
 /// observation support to a type.
-#if !os(visionOS)
+// `Perceptible` is provided by swift-perception, which is Apple-only in
+// this fork. Where Perception is unavailable (e.g. Android) the protocol
+// inherits from Swift's standard `Observation.Observable` instead.
+#if canImport(Perception) && !os(visionOS)
   public protocol ObservableState: Perceptible {
     var _$id: ObservableStateID { get }
     mutating func _$willModify()
