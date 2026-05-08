@@ -832,9 +832,8 @@
     func hash(into hasher: inout Hasher) {}
   }
 
-  enum BindingLocal {
-    @TaskLocal static var isActive = false
-  }
+  // `BindingLocal` moved to `BindingLocal.swift` so it is available on
+  // platforms where this file is gated out by canImport(SwiftUI).
 
   @available(
     *,
